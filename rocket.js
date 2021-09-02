@@ -48,6 +48,13 @@ var plotDataStorage = {
 	mechanicalEnergy1 : [],
 	mechanicalEnergy2 : [],
 	mechanicalEnergy3 : [],
+	
+	pressure1 : [],
+	landingPressure1 : [],
+	pressure2 : [],
+	landingPressure2 : [],
+	pressure3 : [],
+	landingPressure3 : [],
 			
 	altitudeExp : [],
 	velocityExp : [],
@@ -388,6 +395,13 @@ launch();
 		plotDataStorage.mechanicalEnergy2 = [];
 		plotDataStorage.kineticEnergy3 = [];
 		plotDataStorage.mechanicalEnergy3 = [];
+		
+		plotDataStorage.pressure1 = [];
+		plotDataStorage.landingPressure1 = [];
+		plotDataStorage.pressure2 = [];
+		plotDataStorage.landingPressure2 = [];
+		plotDataStorage.pressure3 = [];
+		plotDataStorage.landingPressure3 = [];
 				
 		plotDataStorage.stage1separationTime = 0;
 		plotDataStorage.stage2separationTime = 0;
@@ -401,8 +415,8 @@ launch();
  	
 function stageIgnition(land, h, vr, V, Vw, ro, Ar, An, Alt, p, Cd, m0, lt, ft, temp, currentStage, hIgnition){
 	//physical constants for calculations
-	var waterLossFactor = 0.1; //pressure loss factor in nozzle for water flow
-	var airLossFactor = 0.5; //pressure loss factor in nozzle for air flow
+	var waterLossFactor = 0.2; //pressure loss factor in nozzle for water flow
+	var airLossFactor = 0.3; //pressure loss factor in nozzle for air flow
 	var launchTubeWall = 0.0028 //launch tube wall thickness
     var k = 1.4; //Boltzman constant for atmospheric air
     var g = 9.81; //acceleration of Earth's gravity
@@ -433,8 +447,6 @@ function stageIgnition(land, h, vr, V, Vw, ro, Ar, An, Alt, p, Cd, m0, lt, ft, t
 	var stagesNum = parseInt(numberOfStages.value);
 	var ascentDragWork = 0;
     var firstLoop = true;
-	var kE; //kinetic energy of the stage (calculated for making plots only out of curiosity)
-	var mE; //mechanical energy of the stage (calculated for making plots only out of curiosity)
 	switch (currentStage){
 		case 1:
 			mStage = parseFloat(rocketDryMass.value); //mass of stage with fuel without upper stages
@@ -500,18 +512,14 @@ if (h == 0){
 		V += vr * dt * An; //air volume increases
 	  temp = tempI * Math.pow(((p + pa) / pI), ((k-1)/k)); //temperature of air dercreases due to adiabatic process
 		
-		kE = 0.5 * mStage * vr * vr;
-		mE = kE + mStage * g * h;
-		
 		//write data for plots
 	  
-    plotDataStorage.ascentAltitude.push(h);
-    plotDataStorage.velocity1.push(vr);
-    plotDataStorage.acceleration1.push(a/g);
-    plotDataStorage.thrust1.push(T);
-    plotDataStorage.exhaust1.push(vr);
-		plotDataStorage.kineticEnergy1.push(kE);
-		plotDataStorage.mechanicalEnergy1.push(mE);
+    	plotDataStorage.ascentAltitude.push(h);
+    	plotDataStorage.velocity1.push(vr);
+    	plotDataStorage.acceleration1.push(a/g);
+    	plotDataStorage.thrust1.push(T);
+    	plotDataStorage.exhaust1.push(vr);
+		plotDataStorage.pressure1.push(p/100000); //conversion from Pa to bar
 	}		
 }
 
@@ -529,8 +537,6 @@ if(land){
 		localTime += dt;
 		apogeeToIgnitionTime += dt;
 		
-		kE = 0.5 * mStage * vr * vr;
-		mE = kE + mStage * g * h;
 		
 		//write data for plots
 	  
@@ -538,20 +544,14 @@ if(land){
 			case 1:
    			plotDataStorage.descentAltitude1.push(h);
 				plotDataStorage.landingVelocity1.push(-vr);
-				plotDataStorage.kineticEnergy1.push(kE);
-				plotDataStorage.mechanicalEnergy1.push(mE);
 				break;
 			case 2:
 				plotDataStorage.descentAltitude2.push(h);
 				plotDataStorage.landingVelocity2.push(-vr);
-				plotDataStorage.kineticEnergy2.push(kE);
-				plotDataStorage.mechanicalEnergy2.push(mE);
 				break;
 			case 3:
 				plotDataStorage.descentAltitude3.push(h);
 				plotDataStorage.landingVelocity3.push(-vr);
-				plotDataStorage.kineticEnergy3.push(kE);
-				plotDataStorage.mechanicalEnergy3.push(mE);
 				break;
 		}		
  	}
@@ -583,8 +583,6 @@ var landingStartVelocity = vr;
 	ft += dt;
 	localTime += dt;
 
-	kE = 0.5 * mStage * vr * vr;
-	mE = kE + mStage * g * h;
 	mStage -= dm;
 	
 	//write data for results table
@@ -601,26 +599,23 @@ var landingStartVelocity = vr;
 		switch (currentStage){
 			case 1:
 				plotDataStorage.velocity1.push(vr);
-    		plotDataStorage.acceleration1.push(a/g);
-   			plotDataStorage.thrust1.push(T);
-				plotDataStorage.kineticEnergy1.push(kE);
-				plotDataStorage.mechanicalEnergy1.push(mE);
+    			plotDataStorage.acceleration1.push(a/g);
+   				plotDataStorage.thrust1.push(T);
+				plotDataStorage.pressure1.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.exhaust1.push(ve);
 				break;
 			case 2:
 				plotDataStorage.velocity2.push(vr);
-    		plotDataStorage.acceleration2.push(a/g);
+    			plotDataStorage.acceleration2.push(a/g);
 				plotDataStorage.thrust2.push(T);
-				plotDataStorage.kineticEnergy2.push(kE);
-				plotDataStorage.mechanicalEnergy2.push(mE);
+				plotDataStorage.pressure2.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.exhaust2.push(ve);
 				break;
 			case 3:
 				plotDataStorage.velocity3.push(vr);
-    		plotDataStorage.acceleration3.push(a/g);
+    			plotDataStorage.acceleration3.push(a/g);
 				plotDataStorage.thrust3.push(T);
-				plotDataStorage.kineticEnergy3.push(kE);
-				plotDataStorage.mechanicalEnergy3.push(mE);
+				plotDataStorage.pressure3.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.exhaust3.push(ve);
 				break;
 		}
@@ -630,28 +625,25 @@ var landingStartVelocity = vr;
 			case 1:
 				plotDataStorage.descentAltitude1.push(h);
 				plotDataStorage.landingVelocity1.push(-vr);
-    		plotDataStorage.landingAcceleration1.push(a/g);
+    			plotDataStorage.landingAcceleration1.push(a/g);
 				plotDataStorage.landingThrust1.push(T);
-				plotDataStorage.kineticEnergy1.push(kE);
-				plotDataStorage.mechanicalEnergy1.push(mE);
+				plotDataStorage.landingPressure1.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.landingExhaust1.push(ve);
 				break;
 			case 2:
 				plotDataStorage.descentAltitude2.push(h);
 				plotDataStorage.landingVelocity2.push(-vr);
-    		plotDataStorage.landingAcceleration2.push(a/g);
+    			plotDataStorage.landingAcceleration2.push(a/g);
 				plotDataStorage.landingThrust2.push(T);
-				plotDataStorage.kineticEnergy2.push(kE);
-				plotDataStorage.mechanicalEnergy2.push(mE);
+				plotDataStorage.landingPressure2.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.landingExhaust2.push(ve);
 				break;
 			case 3:
 				plotDataStorage.descentAltitude3.push(h);
 				plotDataStorage.landingVelocity3.push(-vr);
-    		plotDataStorage.landingAcceleration3.push(a/g);
+    			plotDataStorage.landingAcceleration3.push(a/g);
 				plotDataStorage.landingThrust3.push(T);
-				plotDataStorage.kineticEnergy3.push(kE);
-				plotDataStorage.mechanicalEnergy3.push(mE);
+				plotDataStorage.landingPressure3.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.landingExhaust3.push(ve);
 				break;
 		}
@@ -675,7 +667,7 @@ console.log("air pulse phase after all the water escapes");
 console.log("\n");
 while (a > -9 && mA > 0){
 	roAp = mA / V; //pressurised air density (kg/m^3)
-  ve = Math.sqrt(temp * R * 2 * k / (k - 1) * (1 - Math.pow((pa / (p + pa)), ((k - 1) / k)))); //exhaust velocity from De Laval nozzle equation
+  	ve = Math.sqrt(temp * R * 2 * k / (k - 1) * (1 - Math.pow((pa / (p + pa)), ((k - 1) / k)))); //exhaust velocity from De Laval nozzle equation
 	
 	if (M >= 1) dm = An * p / Math.sqrt(temp) * Math.sqrt(k / R) * Math.pow((k + 1) / 2, (-(k + 1) / (2 * (k-1)))) * dt; //equation from nasa' page
 	else dm = ve * An * roApE * dt;
@@ -687,7 +679,7 @@ while (a > -9 && mA > 0){
 		ve = vSound;
 		//console.log("Mach  : " + M);
 		//console.log("temp  : " + (temp - 273));
-	  //console.log("tempE : " + (tempE - 273));
+	 	//console.log("tempE : " + (tempE - 273));
 		//console.log("---- ");
 		
 	}
@@ -711,9 +703,7 @@ while (a > -9 && mA > 0){
 	h += vr * dt;
 	ft += dt;
 	localTime += dt;
-	
-	kE = 0.5 * mStage * vr * vr;
-	mE = kE + mStage * g * h;
+
 	mStage -= dm;
 	
   //write data for plots
@@ -722,26 +712,23 @@ while (a > -9 && mA > 0){
 		switch (currentStage){
 			case 1:
 				plotDataStorage.velocity1.push(vr);
-  			plotDataStorage.acceleration1.push(a/g);
+  				plotDataStorage.acceleration1.push(a/g);
 				plotDataStorage.thrust1.push(T);
-				plotDataStorage.kineticEnergy1.push(kE);
-				plotDataStorage.mechanicalEnergy1.push(mE);
+				plotDataStorage.pressure1.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.exhaust1.push(ve);
 				break;
 			case 2:
 				plotDataStorage.velocity2.push(vr);
 				plotDataStorage.acceleration2.push(a/g);
 				plotDataStorage.thrust2.push(T);
-				plotDataStorage.kineticEnergy2.push(kE);
-				plotDataStorage.mechanicalEnergy2.push(mE);
+				plotDataStorage.pressure2.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.exhaust2.push(ve);
 				break;
 			case 3:
 				plotDataStorage.velocity3.push(vr);
 				plotDataStorage.acceleration3.push(a/g);
 				plotDataStorage.thrust3.push(T);
-				plotDataStorage.kineticEnergy3.push(kE);
-				plotDataStorage.mechanicalEnergy3.push(mE);
+				plotDataStorage.pressure3.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.exhaust3.push(ve);
 				break;
 		}
@@ -753,8 +740,7 @@ while (a > -9 && mA > 0){
 				plotDataStorage.landingVelocity1.push(-vr);
 				plotDataStorage.landingAcceleration1.push(a/g);
 				plotDataStorage.landingThrust1.push(T);
-				plotDataStorage.kineticEnergy1.push(kE);
-				plotDataStorage.mechanicalEnergy1.push(mE);
+				plotDataStorage.landingPressure1.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.landingExhaust1.push(ve);
 				break;
 			case 2:
@@ -762,8 +748,7 @@ while (a > -9 && mA > 0){
 				plotDataStorage.landingVelocity2.push(-vr);
 				plotDataStorage.landingAcceleration2.push(a/g);
 				plotDataStorage.landingThrust2.push(T);
-				plotDataStorage.kineticEnergy2.push(kE);
-				plotDataStorage.mechanicalEnergy2.push(mE);
+				plotDataStorage.landingPressure2.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.landingExhaust2.push(ve);
 				break;
 			case 3:
@@ -771,8 +756,7 @@ while (a > -9 && mA > 0){
 				plotDataStorage.landingVelocity3.push(-vr);
 				plotDataStorage.landingAcceleration3.push(a/g);
 				plotDataStorage.landingThrust3.push(T);
-				plotDataStorage.kineticEnergy3.push(kE);
-				plotDataStorage.mechanicalEnergy3.push(mE);
+				plotDataStorage.landingPressure3.push(p/100000); //conversion from Pa to bar
 				plotDataStorage.landingExhaust3.push(ve);
 				break;
 		}
@@ -807,9 +791,7 @@ if(!land){
 	vr += a * dt;
 	h += vr * dt;
 	ft += dt;
-	 
-	kE = 0.5 * mStage * vr * vr;
-	mE = kE + mStage * g * h;
+	
 	if (m > m0){
 		m -= 10 * dm;
 		mStage -= 10 * dm;
@@ -824,20 +806,14 @@ if(!land){
 			case 1:
 				plotDataStorage.ballisticAltitude1.push(h);
 				plotDataStorage.velocity1.push(vr);
-				plotDataStorage.kineticEnergy1.push(kE);
-				plotDataStorage.mechanicalEnergy1.push(mE);
 				break;
 			case 2:
 				plotDataStorage.ballisticAltitude2.push(h);
 				plotDataStorage.velocity2.push(vr);
-				plotDataStorage.kineticEnergy2.push(kE);
-				plotDataStorage.mechanicalEnergy2.push(mE);
 				break;
 			case 3:
 				plotDataStorage.ballisticAltitude3.push(h);
 				plotDataStorage.velocity3.push(vr);
-				plotDataStorage.kineticEnergy3.push(kE);
-				plotDataStorage.mechanicalEnergy3.push(mE);
 				break;
 	}
  }
